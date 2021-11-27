@@ -49,7 +49,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 60,
+    paddingVertical: 30,
   },
   card: {
     height: GAME_CARD_SIZE,
@@ -105,8 +105,10 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: 'bold',
   },
-  textColor: {
+  cardText: {
     color: COLOR.text,
+    fontSize: 40,
+    fontWeight: 'bold',
   },
 });
 
