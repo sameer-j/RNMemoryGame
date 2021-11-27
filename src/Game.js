@@ -1,15 +1,36 @@
-import React, { useState } from 'react';
+import React, { useEffect, useReducer } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 
-import { shuffle } from './utils';
-import { COLOR, GAME_CARD_SIZE } from './constants';
+import reducer, { initialState } from './reducer';
+import {
+  COLOR,
+  GAME_CARD_SIZE,
+  MAX_CARD_MATCH,
+  ACTION_TYPE,
+} from './constants';
+
+let timeout = null;
+const CARDS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
 
 const Game = () => {
-  const [matches, setMatches] = useState(0);
-  const [attempts, setAttempts] = useState(0);
-  let cards = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
-  cards = cards.concat(cards); // Double the cards to 16, with 2 copies of each
-  shuffle(cards); // shuffle cards
+  const [state, dispatch] = useReducer(reducer, initialState);
+
+  useEffect(() => {
+    dispatch({ type: ACTION_TYPE.CREATE_GAME, payload: CARDS });
+  }, []);
+
+  useEffect(() => {
+    if (state.openCardIndexes.length === MAX_CARD_MATCH) {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => {
+        dispatch({ type: ACTION_TYPE.EVAL_CARD_CLICKED });
+      }, 1000);
+    }
+  }, [state.openCardIndexes]);
+
+  const handleCardPress = clickedIndex => {
+    dispatch({ type: ACTION_TYPE.CARD_CLICKED, payload: { clickedIndex } });
+  };
 
   return (
     <View style={styles.gameScreen}>
@@ -17,32 +38,48 @@ const Game = () => {
         <Text style={styles.title}>Memory Game</Text>
       </View>
       <View style={styles.scoreRow}>
-        <Text style={styles.score}>Matches: {matches}</Text>
-        <Text style={styles.score}>Attempts: {attempts}</Text>
+        <Text style={styles.score}>Matches: {state.matches}</Text>
+        <Text style={styles.score}>Attempts: {state.attempts}</Text>
       </View>
       <View style={styles.gameBoard}>
-        {cards.map((cardVal, idx) => {
-          return <Card value={cardVal} key={`${cardVal}+${idx}`} />;
+        {Object.entries(state.gameBoard).map(([key, card]) => {
+          return (
+            <Card
+              value={card.value}
+              key={`${card.value}+${card.show}+${key}`}
+              show={card.show}
+              onCardPress={() => handleCardPress(key)}
+            />
+          );
         })}
       </View>
-      <TouchableOpacity>
+      <TouchableOpacity
+        onPress={() =>
+          dispatch({ type: ACTION_TYPE.CREATE_GAME, payload: CARDS })
+        }>
         <Text style={styles.restart}>Restart</Text>
       </TouchableOpacity>
     </View>
   );
 };
 
-const Card = ({ value }) => {
-  return (
-    <TouchableOpacity
-      onPress={() => {
-        toggleShow(index);
-      }}
-      style={styles.card}>
-      <Text style={styles.textColor}>{value}</Text>
-    </TouchableOpacity>
-  );
-};
+const Card = React.memo(
+  ({ value = '', show = false, onCardPress = () => {} }) => {
+    console.log('==== card ', value, ' :: ', show);
+    return (
+      <TouchableOpacity
+        onPress={() => {
+          onCardPress();
+        }}
+        style={styles.card}>
+        {show ? <Text style={styles.cardText}>{value}</Text> : <Text />}
+      </TouchableOpacity>
+    );
+  },
+  (prev, next) => {
+    return prev.show === next.show;
+  },
+);
 
 const styles = StyleSheet.create({
   gameScreen: {
