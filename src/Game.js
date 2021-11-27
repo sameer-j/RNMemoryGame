@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 
+import { shuffle } from './utils';
 import { COLOR, GAME_CARD_SIZE } from './constants';
 
 const Game = () => {
@@ -8,6 +9,7 @@ const Game = () => {
   const [attempts, setAttempts] = useState(0);
   let cards = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
   cards = cards.concat(cards); // Double the cards to 16, with 2 copies of each
+  shuffle(cards); // shuffle cards
 
   return (
     <View style={styles.gameScreen}>
