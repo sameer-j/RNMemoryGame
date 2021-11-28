@@ -12,4 +12,4 @@ NOTE: Assumptions are based on the behaviour of game at above link
 - After the second card is opened, after a pause to show the cards, it matches them and does one of the following operations:
   - if matches, increase "Matches" by 1 and hide/remove both the cards
   - if doesnt match, close/turn-back both the cards
--
+- On completion, show "You did it in <> moves/attempts"

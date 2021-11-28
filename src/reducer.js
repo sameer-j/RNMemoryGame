@@ -6,6 +6,7 @@ export const initialState = {
   attempts: 0,
   gameBoard: {},
   openCardIndexes: [],
+  isMatched: false,
 };
 
 const initGameBoard = cards => {
@@ -15,16 +16,28 @@ const initGameBoard = cards => {
     gameBoard[index] = {
       value: cardVal,
       show: false,
-      isDisabled: false,
+      matched: false,
     };
   });
   return gameBoard;
 };
 
-const openCards = ({ gameBoard, openCardIndexes }, { clickedIndex }) => {
-  if (openCardIndexes.length >= MAX_CARD_MATCH) {
-    //TODO
+const openCards = (
+  { gameBoard, openCardIndexes, isMatched },
+  { clickedIndex },
+) => {
+  const totalOpenCards = openCardIndexes.length;
+  if (totalOpenCards >= MAX_CARD_MATCH) {
     return {};
+  }
+
+  let newIsMatchedState = true;
+
+  if (totalOpenCards > 0) {
+    newIsMatchedState =
+      isMatched &&
+      gameBoard[openCardIndexes[totalOpenCards - 1]].value ===
+        gameBoard[clickedIndex].value;
   }
   console.log('OpenCards: ', clickedIndex);
   return {
@@ -33,14 +46,26 @@ const openCards = ({ gameBoard, openCardIndexes }, { clickedIndex }) => {
       ...gameBoard,
       [clickedIndex]: { ...gameBoard[clickedIndex], show: true },
     },
+    isMatched: newIsMatchedState,
   };
 };
 
-const evaluateOpenCards = ({ gameBoard, openCardIndexes, attempts }) => {
-  let openCards = {};
+const evaluateOpenCards = ({
+  gameBoard,
+  openCardIndexes,
+  attempts,
+  isMatched,
+  matches,
+}) => {
+  const openCards = {};
   openCardIndexes.forEach(openCardIndex => {
-    openCards[openCardIndex] = { ...gameBoard[openCardIndex], show: false };
+    openCards[openCardIndex] = {
+      ...gameBoard[openCardIndex],
+      show: false,
+      matched: isMatched,
+    };
   });
+
   return {
     gameBoard: {
       ...gameBoard,
@@ -48,6 +73,7 @@ const evaluateOpenCards = ({ gameBoard, openCardIndexes, attempts }) => {
     },
     openCardIndexes: initialState.openCardIndexes,
     attempts: attempts + 1,
+    matches: matches + +isMatched,
   };
 };
 

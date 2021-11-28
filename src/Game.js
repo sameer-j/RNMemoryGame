@@ -1,5 +1,11 @@
 import React, { useEffect, useReducer } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+} from 'react-native';
 
 import reducer, { initialState } from './reducer';
 import {
@@ -7,10 +13,10 @@ import {
   GAME_CARD_SIZE,
   MAX_CARD_MATCH,
   ACTION_TYPE,
+  CARDS,
 } from './constants';
 
 let timeout = null;
-const CARDS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
 
 const Game = () => {
   const [state, dispatch] = useReducer(reducer, initialState);
@@ -23,6 +29,7 @@ const Game = () => {
     if (state.openCardIndexes.length === MAX_CARD_MATCH) {
       clearTimeout(timeout);
       timeout = setTimeout(() => {
+        console.log('Timeout over');
         dispatch({ type: ACTION_TYPE.EVAL_CARD_CLICKED });
       }, 1000);
     }
@@ -32,31 +39,51 @@ const Game = () => {
     dispatch({ type: ACTION_TYPE.CARD_CLICKED, payload: { clickedIndex } });
   };
 
-  return (
-    <View style={styles.gameScreen}>
-      <View>
-        <Text style={styles.title}>Memory Game</Text>
-      </View>
-      <View style={styles.scoreRow}>
-        <Text style={styles.score}>Matches: {state.matches}</Text>
-        <Text style={styles.score}>Attempts: {state.attempts}</Text>
-      </View>
+  const gameBoardView = () => {
+    if (state.matches === CARDS.length) {
+      return (
+        <View
+          style={{
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}>
+          <Text>You did it in {state.attempts} attempts</Text>
+        </View>
+      );
+    }
+    return (
       <View style={styles.gameBoard}>
         {Object.entries(state.gameBoard).map(([key, card]) => {
           return (
             <Card
-              value={card.value}
-              key={`${card.value}+${card.show}+${key}`}
-              show={card.show}
+              {...card}
+              key={`${card.value}+${key}`}
               onCardPress={() => handleCardPress(key)}
             />
           );
         })}
       </View>
+    );
+  };
+
+  return (
+    <View style={styles.gameScreen}>
+      <View style={{ paddingHorizontal: 30 }}>
+        <Text style={styles.title}>Memory Game</Text>
+        <View style={styles.scoreRow}>
+          <Text style={styles.score}>Matches: {state.matches}</Text>
+          <Text style={styles.score}>Attempts: {state.attempts}</Text>
+        </View>
+      </View>
+      {/* <ScrollView> */}
+      {gameBoardView()}
+      {/* </ScrollView> */}
+
       <TouchableOpacity
         onPress={() =>
           dispatch({ type: ACTION_TYPE.CREATE_GAME, payload: CARDS })
-        }>
+        }
+        style={{ justifyContent: 'flex-end', paddingHorizontal: 30 }}>
         <Text style={styles.restart}>Restart</Text>
       </TouchableOpacity>
     </View>
@@ -64,8 +91,13 @@ const Game = () => {
 };
 
 const Card = React.memo(
-  ({ value = '', show = false, onCardPress = () => {} }) => {
+  ({ value = '', show = false, matched = false, onCardPress = () => {} }) => {
     console.log('==== card ', value, ' :: ', show);
+    if (matched) {
+      return (
+        <View style={{ ...styles.card, backgroundColor: 'transparent' }} />
+      );
+    }
     return (
       <TouchableOpacity
         onPress={() => {
@@ -85,8 +117,8 @@ const styles = StyleSheet.create({
   gameScreen: {
     flex: 1,
     justifyContent: 'space-between',
-    alignItems: 'center',
     paddingVertical: 30,
+    alignItems: 'center',
   },
   card: {
     height: GAME_CARD_SIZE,
@@ -125,9 +157,8 @@ const styles = StyleSheet.create({
   },
   scoreRow: {
     flexDirection: 'row',
-    width: '100%',
     justifyContent: 'space-between',
-    paddingHorizontal: 30,
+    marginTop: 30,
   },
   restart: {
     color: COLOR.text,

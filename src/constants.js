@@ -12,3 +12,4 @@ export const ACTION_TYPE = {
 };
 
 export const MAX_CARD_MATCH = 2; // TODO: check if this works
+export const CARDS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
