@@ -37,11 +37,14 @@ const openCards = ({ gameBoard, openCardIndexes }, { clickedIndex }) => {
 };
 
 const evaluateOpenCards = ({ gameBoard, openCardIndexes, attempts }) => {
+  let openCards = {};
+  openCardIndexes.forEach(openCardIndex => {
+    openCards[openCardIndex] = { ...gameBoard[openCardIndex], show: false };
+  });
   return {
     gameBoard: {
       ...gameBoard,
-      [openCardIndexes[1]]: { ...gameBoard[openCardIndexes[1]], show: false }, // TODO: removed hardcode indexes
-      [openCardIndexes[0]]: { ...gameBoard[openCardIndexes[0]], show: false },
+      ...openCards,
     },
     openCardIndexes: initialState.openCardIndexes,
     attempts: attempts + 1,
