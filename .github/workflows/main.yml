@@ -56,7 +56,7 @@ jobs:
       uses: actions/upload-artifact@v1
       with:
         name: RNMemoryGame.apk
-        path: android/app/build/outputs/apk/release/
+        path: android/app/build/outputs/apk/release/app-arm64-v8a-release.apk
         
     # Send to Slack channel "releases"
     - name: Send to Slack:releases
