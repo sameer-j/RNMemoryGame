@@ -45,12 +45,10 @@ const Game = () => {
   const gameBoardView = () => {
     if (state.matches === UNIQUE_CARDS.length) {
       return (
-        <View
-          style={{
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}>
-          <Text>You did it in {state.attempts} attempts</Text>
+        <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+          <Text style={styles.completionMessage}>
+            You did it in {state.attempts} attempts !!
+          </Text>
         </View>
       );
     }
@@ -146,6 +144,11 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: 15,
     fontWeight: 'bold',
+  },
+  completionMessage: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: COLOR.text,
   },
 });
 
