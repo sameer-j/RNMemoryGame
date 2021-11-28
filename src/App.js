@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 
-import Game from './Game';
+import Game from './game/screen';
 
 const App = () => {
   return (

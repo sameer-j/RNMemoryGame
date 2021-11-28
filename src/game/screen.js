@@ -10,11 +10,12 @@ import {
 import reducer, { initialState } from './reducer';
 import {
   COLOR,
-  GAME_CARD_SIZE,
   MAX_CARD_MATCH,
   ACTION_TYPE,
-  CARDS,
+  UNIQUE_CARDS,
+  CARD_EVALUATION_DELAY,
 } from './constants';
+import { Card } from './components';
 
 let timeout = null;
 
@@ -22,16 +23,15 @@ const Game = () => {
   const [state, dispatch] = useReducer(reducer, initialState);
 
   useEffect(() => {
-    dispatch({ type: ACTION_TYPE.CREATE_GAME, payload: CARDS });
+    dispatch({ type: ACTION_TYPE.CREATE_GAME, payload: UNIQUE_CARDS });
   }, []);
 
   useEffect(() => {
     if (state.openCardIndexes.length === MAX_CARD_MATCH) {
       clearTimeout(timeout);
       timeout = setTimeout(() => {
-        console.log('Timeout over');
         dispatch({ type: ACTION_TYPE.EVAL_CARD_CLICKED });
-      }, 1000);
+      }, CARD_EVALUATION_DELAY);
     }
   }, [state.openCardIndexes]);
 
@@ -40,7 +40,7 @@ const Game = () => {
   };
 
   const gameBoardView = () => {
-    if (state.matches === CARDS.length) {
+    if (state.matches === UNIQUE_CARDS.length) {
       return (
         <View
           style={{
@@ -52,36 +52,37 @@ const Game = () => {
       );
     }
     return (
-      <View style={styles.gameBoard}>
-        {Object.entries(state.gameBoard).map(([key, card]) => {
-          return (
-            <Card
-              {...card}
-              key={`${card.value}+${key}`}
-              onCardPress={() => handleCardPress(key)}
-            />
-          );
-        })}
-      </View>
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <View style={styles.gameBoard}>
+          {Object.entries(state.gameBoard).map(([key, card]) => {
+            return (
+              <Card
+                {...card}
+                key={`${card.value}+${key}`}
+                onCardPress={() => handleCardPress(key)}
+              />
+            );
+          })}
+        </View>
+      </ScrollView>
     );
   };
 
   return (
     <View style={styles.gameScreen}>
-      <View style={{ paddingHorizontal: 30 }}>
+      <View>
         <Text style={styles.title}>Memory Game</Text>
         <View style={styles.scoreRow}>
           <Text style={styles.score}>Matches: {state.matches}</Text>
           <Text style={styles.score}>Attempts: {state.attempts}</Text>
         </View>
       </View>
-      {/* <ScrollView> */}
+
       {gameBoardView()}
-      {/* </ScrollView> */}
 
       <TouchableOpacity
         onPress={() =>
-          dispatch({ type: ACTION_TYPE.CREATE_GAME, payload: CARDS })
+          dispatch({ type: ACTION_TYPE.CREATE_GAME, payload: UNIQUE_CARDS })
         }
         style={{ justifyContent: 'flex-end', paddingHorizontal: 30 }}>
         <Text style={styles.restart}>Restart</Text>
@@ -90,49 +91,15 @@ const Game = () => {
   );
 };
 
-const Card = React.memo(
-  ({ value = '', show = false, matched = false, onCardPress = () => {} }) => {
-    console.log('==== card ', value, ' :: ', show);
-    if (matched) {
-      return (
-        <View style={{ ...styles.card, backgroundColor: 'transparent' }} />
-      );
-    }
-    return (
-      <TouchableOpacity
-        onPress={() => {
-          !show && onCardPress();
-        }}
-        style={styles.card}>
-        {show ? <Text style={styles.cardText}>{value}</Text> : <Text />}
-      </TouchableOpacity>
-    );
-  },
-  (prev, next) => {
-    return prev.show === next.show;
-  },
-);
-
 const styles = StyleSheet.create({
   gameScreen: {
     flex: 1,
     justifyContent: 'space-between',
-    paddingVertical: 30,
+    padding: 15,
     alignItems: 'center',
-  },
-  card: {
-    height: GAME_CARD_SIZE,
-    width: GAME_CARD_SIZE,
-    borderWidth: 2,
-    backgroundColor: COLOR.card,
-    alignItems: 'center',
-    justifyContent: 'center',
-    margin: 5,
-    borderRadius: 6,
   },
   gameBoard: {
-    height: GAME_CARD_SIZE * 4.7,
-    width: GAME_CARD_SIZE * 4.7,
+    width: '100%',
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'center',
@@ -154,11 +121,12 @@ const styles = StyleSheet.create({
     color: COLOR.text,
     fontSize: 15,
     fontWeight: 'bold',
+    marginBottom: 15,
   },
   scoreRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 30,
+    marginTop: 20,
   },
   restart: {
     color: COLOR.text,
@@ -171,11 +139,6 @@ const styles = StyleSheet.create({
     color: COLOR.text,
     textAlign: 'center',
     fontSize: 15,
-    fontWeight: 'bold',
-  },
-  cardText: {
-    color: COLOR.text,
-    fontSize: 40,
     fontWeight: 'bold',
   },
 });

@@ -1,4 +1,4 @@
-import { shuffle } from './utils';
+import { initGameBoard } from './utils';
 import { ACTION_TYPE, MAX_CARD_MATCH } from './constants';
 
 export const initialState = {
@@ -9,20 +9,7 @@ export const initialState = {
   isMatched: false,
 };
 
-const initGameBoard = cards => {
-  const gameBoard = {};
-  const gameCards = shuffle([...cards, ...cards]); // Double the cards to 16, with 2 copies of each & Shuffle
-  gameCards.forEach((cardVal, index) => {
-    gameBoard[index] = {
-      value: cardVal,
-      show: false,
-      matched: false,
-    };
-  });
-  return gameBoard;
-};
-
-const openCards = (
+const updateCardStatus = (
   { gameBoard, openCardIndexes, isMatched },
   { clickedIndex },
 ) => {
@@ -39,7 +26,7 @@ const openCards = (
       gameBoard[openCardIndexes[totalOpenCards - 1]].value ===
         gameBoard[clickedIndex].value;
   }
-  console.log('OpenCards: ', clickedIndex);
+
   return {
     openCardIndexes: [...openCardIndexes, clickedIndex],
     gameBoard: {
@@ -50,7 +37,7 @@ const openCards = (
   };
 };
 
-const evaluateOpenCards = ({
+const updateGameState = ({
   gameBoard,
   openCardIndexes,
   attempts,
@@ -84,12 +71,12 @@ function reducer(state, action) {
     case ACTION_TYPE.CARD_CLICKED:
       return {
         ...state,
-        ...openCards(state, action.payload),
+        ...updateCardStatus(state, action.payload),
       };
     case ACTION_TYPE.EVAL_CARD_CLICKED:
       return {
         ...state,
-        ...evaluateOpenCards(state, action.payload),
+        ...updateGameState(state, action.payload),
       };
     default:
       return state;
