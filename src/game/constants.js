@@ -16,4 +16,4 @@ export const ACTION_TYPE = {
   EVAL_CARD_CLICKED: 'EVAL_CARD_CLICKED',
 };
 
-export const CARD_EVALUATION_DELAY = 1000;
+export const CARD_EVALUATION_DELAY = 500;
