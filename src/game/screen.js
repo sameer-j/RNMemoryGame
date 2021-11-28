@@ -23,7 +23,10 @@ const Game = () => {
   const [state, dispatch] = useReducer(reducer, initialState);
 
   useEffect(() => {
-    dispatch({ type: ACTION_TYPE.CREATE_GAME, payload: UNIQUE_CARDS });
+    dispatch({
+      type: ACTION_TYPE.CREATE_GAME,
+      payload: { cards: UNIQUE_CARDS, max_matches: MAX_CARD_MATCH },
+    });
   }, []);
 
   useEffect(() => {
