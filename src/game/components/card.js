@@ -20,7 +20,7 @@ export const Card = React.memo(
     );
   },
   (prev, next) => {
-    return prev.show === next.show;
+    return prev.show === next.show && prev.matched === next.matched;
   },
 );
 

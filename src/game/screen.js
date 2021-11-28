@@ -17,7 +17,7 @@ import {
 } from './constants';
 import { Card } from './components';
 
-let timeout = null;
+let timer = null;
 
 const Game = () => {
   const [state, dispatch] = useReducer(reducer, initialState);
@@ -31,8 +31,8 @@ const Game = () => {
 
   useEffect(() => {
     if (state.openCardIndexes.length === MAX_CARD_MATCH) {
-      clearTimeout(timeout);
-      timeout = setTimeout(() => {
+      clearTimeout(timer);
+      timer = setTimeout(() => {
         dispatch({ type: ACTION_TYPE.EVAL_CARD_CLICKED });
       }, CARD_EVALUATION_DELAY);
     }
@@ -82,12 +82,13 @@ const Game = () => {
       {gameBoardView()}
 
       <TouchableOpacity
-        onPress={() =>
+        onPress={() => {
+          clearTimeout(timer);
           dispatch({
             type: ACTION_TYPE.CREATE_GAME,
             payload: { cards: UNIQUE_CARDS, max_matches: MAX_CARD_MATCH },
-          })
-        }
+          });
+        }}
         style={{ justifyContent: 'flex-end', paddingHorizontal: 30 }}>
         <Text style={styles.restart}>Restart</Text>
       </TouchableOpacity>
