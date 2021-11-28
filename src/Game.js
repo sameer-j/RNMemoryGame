@@ -69,7 +69,7 @@ const Card = React.memo(
     return (
       <TouchableOpacity
         onPress={() => {
-          onCardPress();
+          !show && onCardPress();
         }}
         style={styles.card}>
         {show ? <Text style={styles.cardText}>{value}</Text> : <Text />}
