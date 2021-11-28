@@ -1,0 +1,67 @@
+# This is a basic workflow to help you get started with Actions
+
+name: Main Branch Build
+
+# Controls when the action will run. Triggers the workflow on push or pull request
+# events but only for the master branch
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  build:
+    # Run this job only if the pull request is merged
+    # if: github.event.pull_request.merged == 'true'
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+    - name: Cache
+      uses: actions/cache@v2.1.6
+      env:
+          cache-name: cache-gradle
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+        key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**.gradle') }}
+        restore-keys: |
+          ${{ runner.os }}-build-${{ env.cache-name }}-
+          ${{ runner.os }}-build-
+          ${{ runner.os }}-
+    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+    - uses: actions/checkout@v2
+    - uses: actions/setup-node@v2
+      with:
+        node-version: '15'
+        cache: 'yarn'
+    # Install dependencies
+    - name: Install yarn dependencies
+      run: |
+        yarn install
+    # Run Tests
+    - name: Run tests
+      run: |
+        yarn test
+    # Build Android
+    - name: Build Android Release
+      run: |
+        cd android && chmod +x 'gradlew' && ./gradlew assembleRelease
+        
+    # Upload Artifact
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v1
+      with:
+        name: RNMemoryGame.apk
+        path: android/app/build/outputs/apk/release/
+        
+    # Send to Slack channel "releases"
+    - name: Send to Slack:releases
+      run: |
+        curl -F file=@android/app/build/outputs/apk/release/app-arm64-v8a-release.apk \
+        -F "initial_comment=Main branch merge: ${{github.event.head_commit.message}}" \
+        -F "filename=RNMemoryGame.apk" \
+        -F channels=releases -H "Authorization: Bearer ${{secrets.SLACKTOKEN}}" https://slack.com/api/files.upload
