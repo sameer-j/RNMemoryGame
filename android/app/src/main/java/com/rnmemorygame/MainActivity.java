@@ -1,4 +1,4 @@
-package com.rnmemorygame;
+package com.sameer.rnmemorygame;
 
 import com.facebook.react.ReactActivity;
 
