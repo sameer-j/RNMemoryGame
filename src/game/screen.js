@@ -85,7 +85,10 @@ const Game = () => {
 
       <TouchableOpacity
         onPress={() =>
-          dispatch({ type: ACTION_TYPE.CREATE_GAME, payload: UNIQUE_CARDS })
+          dispatch({
+            type: ACTION_TYPE.CREATE_GAME,
+            payload: { cards: UNIQUE_CARDS, max_matches: MAX_CARD_MATCH },
+          })
         }
         style={{ justifyContent: 'flex-end', paddingHorizontal: 30 }}>
         <Text style={styles.restart}>Restart</Text>
